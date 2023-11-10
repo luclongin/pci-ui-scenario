@@ -60,7 +60,7 @@ Within this repo is a demo UI that our team needs to make some changes to before
 3. **[Complete]** The users have complained that the dates are not very readable. Please display the dates in a format that is more human-readable. I will trust your input on what format is best in this case.
 4. **[Complete]** Rather than just displaying Y or N or n/a in the Potentially Hazardous column, we should display "Yes", "No", and a blank cell for those values respectively.
 5. **[Incomplete (No Access): Range Selection and Clipboard functionalities are limited to Enterprise users]** 
-The users would like to be able to copy the information from this grid into a software like Excel. The user should be able to select any portion of this grid, copy the data, and paste it into excel. When they do this, they should get only the data that is copied, and they should get that data as it is displayed within the grid. 
+The users would like to be able to copy the information from this grid into a software like Excel. The user should be able to select any portion of this grid, copy the data, and paste it into excel. When they do this, they should get only the data that is copied, and they should get that data as it is displayed within the grid.\ 
     **Luc**: upon research, it seems like Range Selection and clipboard (copy-paste) functionalities are limited to enterprise users (please refer to https://www.ag-grid.com/react-data-grid/clipboard/ and https://www.ag-grid.com/react-data-grid/range-selection/). 
     Their would-be implementation will be shown below:
 
