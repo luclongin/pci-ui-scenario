@@ -85,7 +85,6 @@ const columnDefs: ColDef[] = [
 	{
 		field: "orbit_class",
 		headerName: "Orbit Class",
-		enableRowGroup: true,
 	},
 ];
 
