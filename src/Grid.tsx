@@ -7,7 +7,7 @@ import {
 import data from "./near-earth-asteroids.json";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useCallback } from "react";
 
 /*
   #######################################################
@@ -86,7 +86,7 @@ function i_degGetter(params: ValueGetterParams) {
 
 // Converting ISO dates to JS Date object for the date filtering to work
 function dateFilterGetter(params: ValueGetterParams) {
-  return new Date(params.data.discovery_date);
+	return new Date(params.data.discovery_date);
 }
 
 /*
@@ -212,11 +212,11 @@ const columnDefs: ColDef[] = [
 		headerName: "Potentially Hazardous",
 		valueGetter: phaGetter,
 	},
-	{ 
-    field: "orbit_class", 
-    headerName: "Orbit Class", 
-    enableRowGroup: true
-  },
+	{
+		field: "orbit_class",
+		headerName: "Orbit Class",
+		enableRowGroup: true,
+	},
 ];
 
 /*
@@ -235,19 +235,18 @@ const NeoGrid = (): JSX.Element => {
 		};
 	}, []);
 
-	/*
-  For testing that clear sort works
-	const clearFiltersSorters = useCallback(() => {
+	const clearAllFiltersSorters = useCallback(() => {
 		gridRef.current!.columnApi.applyColumnState({
 			defaultState: { sort: null },
 		});
-	}, []); */
+    gridRef.current!.api.setFilterModel(null);
+	}, []);
 
 	return (
 		<>
-			{/*<button id="" onClick={clearFiltersSorters}>
-            Clear Filters and Sorters
-      </button>*/}
+			<button id="clear-button" onClick={clearAllFiltersSorters}>
+				Clear Filters and Sorters
+			</button>
 			<div
 				className="ag-theme-alpine"
 				style={{ height: 900, width: 1920 }}

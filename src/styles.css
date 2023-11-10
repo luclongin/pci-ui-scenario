@@ -1,0 +1,21 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+h1, button {
+    margin: 0;
+    padding: 0;
+}
+
+.app-title {
+	font-size: 1.5rem;
+    font-weight: bold;
+    font-family: sans-serif;
+    margin: 3rem 0 0 2rem;
+}
+
+#clear-button {
+    margin: 15px 0 2rem 2rem;
+}

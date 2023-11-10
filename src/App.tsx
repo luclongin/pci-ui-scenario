@@ -1,5 +1,4 @@
 import NeoGrid from './Grid';
-import "./App.css";
 
 const App = () => {
   return (
