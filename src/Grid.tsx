@@ -1,12 +1,14 @@
 import { AgGridReact } from "ag-grid-react";
 import {
 	ColDef,
-	ValueFormatterParams
+	ValueGetterParams,
+	ValueFormatterParams,
+  
 } from "ag-grid-community";
 import data from "./near-earth-asteroids.json";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { useMemo } from "react";
+import { useMemo, useRef, useCallback } from "react";
 /*
   #######################################################
               Value Formatters
@@ -20,7 +22,8 @@ import { useMemo } from "react";
 function dateFormatter(params: ValueFormatterParams) {
 	// current date format is yyyy-mm-dd
 	const dateToArray = params.value.split("T")[0].split("-");
-	const newDate = dateToArray[1] + "/" + dateToArray[2] + "/" + dateToArray[0];
+	const newDate =
+		dateToArray[1] + "/" + dateToArray[2] + "/" + dateToArray[0];
 	return newDate;
 }
 
@@ -47,6 +50,37 @@ function phaFormatter(params: ValueFormatterParams) {
 
 /*
   #######################################################
+              Getter functions
+  #######################################################
+  NOTE:
+  These are needed to filter Numbers (otherwise they're used as strings) and Equals filter doesn't work
+*/
+function h_magGetter(params: ValueGetterParams) {
+	return Number(params.data.h_mag);
+}
+
+function moid_auGetter(params: ValueGetterParams) {
+	return Number(params.data.moid_au);
+}
+
+function q_au_1Getter(params: ValueGetterParams) {
+	return Number(params.data.q_au_1);
+}
+
+function q_au_2Getter(params: ValueGetterParams) {
+	return Number(params.data.q_au_2);
+}
+
+function period_yrGetter(params: ValueGetterParams) {
+	return Number(params.data.period_yr);
+}
+
+function i_degGetter(params: ValueGetterParams) {
+	return Number(params.data.i_deg);
+}
+
+/*
+  #######################################################
               Sorting functions
   #######################################################
 */
@@ -62,6 +96,9 @@ function phaFormatter(params: ValueFormatterParams) {
   i_deg: number
   pha: alphabetical
   orbit_class: alphabetical
+
+  Only creating a numberComparator is needed as the other columns seem to have automatic sorting
+  that's been inferred by Ag Grid
 */
 
 const numberComparator = (
@@ -76,7 +113,6 @@ const numberComparator = (
 	const newValueB = valueB == null ? 0 : valueB;
 	return newValueA - newValueB;
 };
-
 
 /*
   #######################################################
@@ -94,27 +130,43 @@ const columnDefs: ColDef[] = [
 		field: "h_mag",
 		headerName: "H (mag)",
 		comparator: numberComparator,
+		filter: "agNumberColumnFilter",
+		valueGetter: h_magGetter,
 	},
-	{ field: "moid_au", headerName: "MOID (au)", comparator: numberComparator },
+	{
+		field: "moid_au",
+		headerName: "MOID (au)",
+		comparator: numberComparator,
+		filter: "agNumberColumnFilter",
+		valueGetter: moid_auGetter,
+	},
 	{
 		field: "q_au_1",
 		headerName: "q (au)",
 		comparator: numberComparator,
+		filter: "agNumberColumnFilter",
+		valueGetter: q_au_1Getter,
 	},
 	{
 		field: "q_au_2",
 		headerName: "Q (au)",
 		comparator: numberComparator,
+		filter: "agNumberColumnFilter",
+		valueGetter: q_au_2Getter,
 	},
 	{
 		field: "period_yr",
 		headerName: "Period (yr)",
 		comparator: numberComparator,
+		filter: "agNumberColumnFilter",
+		valueGetter: period_yrGetter,
 	},
 	{
 		field: "i_deg",
 		headerName: "Inclination (deg)",
 		comparator: numberComparator,
+		filter: "agNumberColumnFilter",
+		valueGetter: i_degGetter,
 	},
 	{
 		field: "pha",
@@ -130,23 +182,43 @@ const columnDefs: ColDef[] = [
   #######################################################
 */
 const NeoGrid = (): JSX.Element => {
-	// enable sorting on all columns by default
+	const gridRef = useRef<AgGridReact>(null);
+
 	const defaultColDef = useMemo<ColDef>(() => {
 		return {
-			sortable: true,
+      sortable: true,
+			filter: "agTextColumnFilter",
+			menuTabs: ["filterMenuTab"],
 		};
 	}, []);
 
+	/*
+  For testing that clear sort works
+	const clearFiltersSorters = useCallback(() => {
+		gridRef.current!.columnApi.applyColumnState({
+			defaultState: { sort: null },
+		});
+	}, []); */
+
 	return (
-		<div className="ag-theme-alpine" style={{ height: 900, width: 1920 }}>
-			<AgGridReact
-				rowData={data}
-				columnDefs={columnDefs}
-				defaultColDef={defaultColDef}
-				rowGroupPanelShow={"always"}
-				rowSelection={"multiple"}
-			/>
-		</div>
+		<>
+			{/*<button id="" onClick={clearFiltersSorters}>
+            Clear Filters and Sorters
+      </button>*/}
+			<div
+				className="ag-theme-alpine"
+				style={{ height: 900, width: 1920 }}
+			>
+				<AgGridReact
+					ref={gridRef}
+					rowData={data}
+					columnDefs={columnDefs}
+					defaultColDef={defaultColDef}
+					rowGroupPanelShow={"always"}
+					rowSelection={"multiple"}
+				/>
+			</div>
+		</>
 	);
 };
 
