@@ -3,12 +3,12 @@ import {
 	ColDef,
 	ValueGetterParams,
 	ValueFormatterParams,
-	IDateFilterParams,
 } from "ag-grid-community";
 import data from "./near-earth-asteroids.json";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-import { useMemo, useRef, useCallback } from "react";
+import { useMemo, useRef } from "react";
+
 /*
   #######################################################
               Value Formatters
@@ -22,6 +22,7 @@ import { useMemo, useRef, useCallback } from "react";
 function dateFormatter(params: ValueFormatterParams) {
 	// current date format is yyyy-mm-dd
 	const dateToArray = params.value.split("T")[0].split("-");
+	// new date format is dd/mm/yyyy
 	const newDate =
 		dateToArray[2] + "/" + dateToArray[1] + "/" + dateToArray[0];
 	return newDate;
@@ -93,7 +94,6 @@ function dateFilterGetter(params: ValueGetterParams) {
               Sorting functions
   #######################################################
 */
-
 /* Sort definitions:
   designation: alphabetical
   discovery_date: date
@@ -105,9 +105,6 @@ function dateFilterGetter(params: ValueGetterParams) {
   i_deg: number
   pha: alphabetical
   orbit_class: alphabetical
-
-  Only creating a numberComparator is needed as the other columns seem to have automatic sorting
-  that's been inferred by Ag Grid
 */
 
 const numberComparator = (
@@ -152,12 +149,6 @@ function monthToComparableNumber(date: string) {
 	const dayNumber = Number(formattedDate.split("-")[2]);
 	return yearNumber * 10000 + monthNumber * 100 + dayNumber;
 }
-
-/*
-  #######################################################
-              Filter functions
-  #######################################################
-*/
 
 /*
   #######################################################
@@ -221,7 +212,11 @@ const columnDefs: ColDef[] = [
 		headerName: "Potentially Hazardous",
 		valueGetter: phaGetter,
 	},
-	{ field: "orbit_class", headerName: "Orbit Class", enableRowGroup: true },
+	{ 
+    field: "orbit_class", 
+    headerName: "Orbit Class", 
+    enableRowGroup: true
+  },
 ];
 
 /*
