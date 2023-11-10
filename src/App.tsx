@@ -1,8 +1,12 @@
 import NeoGrid from './Grid';
+import "./App.css";
 
 const App = () => {
   return (
-      <NeoGrid />
+		<>
+			<h1 className="app-title">Near-Earth Object Overview</h1>
+			<NeoGrid />
+		</>
   );
 }
 
