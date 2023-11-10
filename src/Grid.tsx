@@ -3,7 +3,6 @@ import {
 	ColDef,
 	ValueGetterParams,
 	ValueFormatterParams,
-  
 } from "ag-grid-community";
 import data from "./near-earth-asteroids.json";
 import "ag-grid-community/styles/ag-grid.css";
@@ -17,13 +16,13 @@ import { useMemo, useRef, useCallback } from "react";
 
 /*
   Value formatter for "discovery_date" field
-  Formatting dates to US format: mm/dd/yyyy
+  Formatting dates to the following format: dd/mm/yyyy
 */
 function dateFormatter(params: ValueFormatterParams) {
 	// current date format is yyyy-mm-dd
 	const dateToArray = params.value.split("T")[0].split("-");
 	const newDate =
-		dateToArray[1] + "/" + dateToArray[2] + "/" + dateToArray[0];
+		dateToArray[2] + "/" + dateToArray[1] + "/" + dateToArray[0];
 	return newDate;
 }
 
@@ -55,28 +54,29 @@ function phaFormatter(params: ValueFormatterParams) {
   NOTE:
   These are needed to filter Numbers (otherwise they're used as strings) and Equals filter doesn't work
 */
+
 function h_magGetter(params: ValueGetterParams) {
-	return Number(params.data.h_mag);
+	return params.data.h_mag != null ? Number(params.data.h_mag) : null;
 }
 
 function moid_auGetter(params: ValueGetterParams) {
-	return Number(params.data.moid_au);
+	return params.data.moid_au != null ? Number(params.data.moid_au) : null;
 }
 
 function q_au_1Getter(params: ValueGetterParams) {
-	return Number(params.data.q_au_1);
+	return params.data.q_au_1 != null ? Number(params.data.q_au_1) : null;
 }
 
 function q_au_2Getter(params: ValueGetterParams) {
-	return Number(params.data.q_au_2);
+	return params.data.q_au_2 != null ? Number(params.data.q_au_2) : null;
 }
 
 function period_yrGetter(params: ValueGetterParams) {
-	return Number(params.data.period_yr);
+	return params.data.period_yr != null ? Number(params.data.period_yr) : null;
 }
 
 function i_degGetter(params: ValueGetterParams) {
-	return Number(params.data.i_deg);
+	return params.data.i_deg != null ? Number(params.data.i_deg) : null;
 }
 
 /*
@@ -114,6 +114,41 @@ const numberComparator = (
 	return newValueA - newValueB;
 };
 
+function dateComparator(
+	date1: string,
+	date2: string,
+	nodeA: any,
+	nodeB: any,
+	isDescending: boolean
+) {
+	const date1Number = monthToComparableNumber(date1);
+	const date2Number = monthToComparableNumber(date2);
+	console.log("date1number", date1Number);
+	console.log("date2Number", date2Number);
+	if (date1Number === null && date2Number === null) {
+		return 0;
+	}
+	if (date1Number === null) {
+		return -1;
+	}
+	if (date2Number === null) {
+		return 1;
+	}
+	return date1Number - date2Number;
+}
+
+// eg 29/08/2004 gets converted to 20040829
+function monthToComparableNumber(date: string) {
+	const formattedDate = date.split("T")[0];
+	const yearNumber = Number(formattedDate.split("-")[0]);
+	console.log("yearNumber", yearNumber);
+	const monthNumber = Number(formattedDate.split("-")[1]);
+	console.log("monthNumber", monthNumber);
+	const dayNumber = Number(formattedDate.split("-")[2]);
+	console.log("dayNumber", dayNumber);
+	return yearNumber * 10000 + monthNumber * 100 + dayNumber;
+}
+
 /*
   #######################################################
               Column Definitions
@@ -125,6 +160,8 @@ const columnDefs: ColDef[] = [
 		field: "discovery_date",
 		headerName: "Discovery Date",
 		valueFormatter: (params) => dateFormatter(params),
+		filter: "agDateColumnFilter",
+		comparator: dateComparator,
 	},
 	{
 		field: "h_mag",
@@ -186,7 +223,7 @@ const NeoGrid = (): JSX.Element => {
 
 	const defaultColDef = useMemo<ColDef>(() => {
 		return {
-      sortable: true,
+			sortable: true,
 			filter: "agTextColumnFilter",
 			menuTabs: ["filterMenuTab"],
 		};
