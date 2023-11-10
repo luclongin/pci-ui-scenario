@@ -3,6 +3,7 @@ import {
 	ColDef,
 	ValueGetterParams,
 	ValueFormatterParams,
+	IDateFilterParams,
 } from "ag-grid-community";
 import data from "./near-earth-asteroids.json";
 import "ag-grid-community/styles/ag-grid.css";
@@ -27,11 +28,22 @@ function dateFormatter(params: ValueFormatterParams) {
 }
 
 /*
+  #######################################################
+              Getter functions
+  #######################################################
+  NOTE:
+  These are needed to filter Numbers (otherwise they're used as strings) and Equals filter doesn't work
+  ----------
+  Should be able to find a way to not duplicate all these functions,
+  need to find the type of "field", weirdly ColDefField is not recognized from ag-grid-community library
+*/
+
+/*
   Value formatter for "pha" field
   Current format is Y, N, n/a, format to Yes, No and empty string
 */
-function phaFormatter(params: ValueFormatterParams) {
-	switch (params.value) {
+function phaGetter(params: ValueGetterParams) {
+	switch (params.data.pha) {
 		case "Y":
 			return "Yes";
 			break;
@@ -46,14 +58,6 @@ function phaFormatter(params: ValueFormatterParams) {
 			break;
 	}
 }
-
-/*
-  #######################################################
-              Getter functions
-  #######################################################
-  NOTE:
-  These are needed to filter Numbers (otherwise they're used as strings) and Equals filter doesn't work
-*/
 
 function h_magGetter(params: ValueGetterParams) {
 	return params.data.h_mag != null ? Number(params.data.h_mag) : null;
@@ -77,6 +81,11 @@ function period_yrGetter(params: ValueGetterParams) {
 
 function i_degGetter(params: ValueGetterParams) {
 	return params.data.i_deg != null ? Number(params.data.i_deg) : null;
+}
+
+// Converting ISO dates to JS Date object for the date filtering to work
+function dateFilterGetter(params: ValueGetterParams) {
+  return new Date(params.data.discovery_date);
 }
 
 /*
@@ -123,8 +132,6 @@ function dateComparator(
 ) {
 	const date1Number = monthToComparableNumber(date1);
 	const date2Number = monthToComparableNumber(date2);
-	console.log("date1number", date1Number);
-	console.log("date2Number", date2Number);
 	if (date1Number === null && date2Number === null) {
 		return 0;
 	}
@@ -141,13 +148,16 @@ function dateComparator(
 function monthToComparableNumber(date: string) {
 	const formattedDate = date.split("T")[0];
 	const yearNumber = Number(formattedDate.split("-")[0]);
-	console.log("yearNumber", yearNumber);
 	const monthNumber = Number(formattedDate.split("-")[1]);
-	console.log("monthNumber", monthNumber);
 	const dayNumber = Number(formattedDate.split("-")[2]);
-	console.log("dayNumber", dayNumber);
 	return yearNumber * 10000 + monthNumber * 100 + dayNumber;
 }
+
+/*
+  #######################################################
+              Filter functions
+  #######################################################
+*/
 
 /*
   #######################################################
@@ -162,6 +172,7 @@ const columnDefs: ColDef[] = [
 		valueFormatter: (params) => dateFormatter(params),
 		filter: "agDateColumnFilter",
 		comparator: dateComparator,
+		filterValueGetter: dateFilterGetter,
 	},
 	{
 		field: "h_mag",
@@ -208,7 +219,7 @@ const columnDefs: ColDef[] = [
 	{
 		field: "pha",
 		headerName: "Potentially Hazardous",
-		valueFormatter: (params) => phaFormatter(params),
+		valueGetter: phaGetter,
 	},
 	{ field: "orbit_class", headerName: "Orbit Class", enableRowGroup: true },
 ];
