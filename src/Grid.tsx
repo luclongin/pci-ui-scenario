@@ -3,7 +3,6 @@ import { ColDef, ValueFormatterParams } from "ag-grid-community";
 import data from "./near-earth-asteroids.json";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
-
 /*
   #######################################################
               Value Formatters
@@ -80,6 +79,7 @@ const NeoGrid = (): JSX.Element => {
 				rowData={data}
 				columnDefs={columnDefs}
 				rowGroupPanelShow={"always"}
+				rowSelection={"multiple"}
 			/>
 		</div>
 	);
